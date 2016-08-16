@@ -38,6 +38,12 @@ const conf = convict({
     format: 'port',
     default: 4001,
     env: 'PORT'
+  },
+  dbUrl: {
+    doc: 'The URI of the Backlog MongoDB.',
+    format: 'url',
+    default: 'localhost:27017',
+    env: 'DB_URL'
   }
 })
 

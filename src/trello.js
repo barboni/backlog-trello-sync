@@ -2,7 +2,7 @@ import oauth from './oauth.js'
 
 const apiBase = 'https://api.trello.com/1'
 
-function request(type, path, token, secret, data) => {
+function request(type, path, token, secret, data) {
 
   if (['get', 'post', 'put', 'delete'].indexOf(type) < 0) {
     throw new Error('request type not supported')
@@ -11,7 +11,7 @@ function request(type, path, token, secret, data) => {
   const method = oauth[type]
 
   return new Promise((resolve, reject) => {
-    function resolveReject(e, data) => {
+    function resolveReject(e, data) {
       if (e) {
         reject(e)
       }
