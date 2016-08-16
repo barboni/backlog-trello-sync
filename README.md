@@ -1,4 +1,4 @@
-## UNDER DEVELOPMENT AND HIGHLY UNSTABLE
+## UNDER DEVELOPMENT, INCOMPLETE AND HIGHLY UNSTABLE
 
 # Backlog Trello sync
 
@@ -76,7 +76,7 @@ You can find the Backlog DB URL by running `meteor mongo`.
 
 ⚠ Important ⚠
 
-Each request needs to be a POST request and have the keys `token` and `secret` in the payload. This are the token and secret you get once you authorized this microservice against the Trello OAuth mechanism. While running this server in development mode, you can do this by going to [http://localhost:4001/login](http://localhost:4001/login).
+Each request needs to be a POST request and have the keys `token` and `secret` in the payload. These are the token and secret you get once you authorized this microservice against the Trello OAuth mechanism. While running the server in development mode, you can do this by going to [http://localhost:4001/login](http://localhost:4001/login).
 
 ### List Trello boards
 

@@ -34,6 +34,8 @@
     "body-parser": "1.15.2",
     "convict": "1.4.0",
     "express": "4.14.0",
+    "meteor-random": "0.0.3",
+    "mongoose": "4.5.9",
     "oauth": "0.9.14"
   },
   "ava": {
