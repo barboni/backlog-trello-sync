@@ -7,8 +7,9 @@ Synchronize your [backlogapp](www.backlogapp.io) with trello.
 ## Running
 
 First ensure that the configuration is right for your needs. You can override all values by setting the corresponding ENV variables. All following values in `config.js` need to be set:
-```
-env: {
+```js
+{
+  env: {
     doc: 'The applicaton environment.',
     format: ['production', 'development', 'test'],
     default: 'development',
@@ -52,6 +53,7 @@ env: {
     default: 'localhost:27017',
     env: 'DB_URL'
   }
+}
 ```
 
 `key` and `secret` have no default values on purpose. Please use your own. You can get both [here](https://trello.com/app-key).
@@ -73,11 +75,13 @@ You can find the Backlog DB URL by running `meteor mongo`.
 ## Endpoints
 
 ⚠ Important ⚠
+
 Each request needs to be a POST request and have the keys `token` and `secret` in the payload. This are the token and secret you get once you authorized this microservice against the Trello OAuth mechanism. While running this server in development mode, you can do this by going to [http://localhost:4001/login](http://localhost:4001/login).
 
 ### List Trello boards
 
 Endpoint: `/list-boards`
+
 Required:
 - `token`
 - `secret`
@@ -85,6 +89,7 @@ Required:
 ### Create a Trello board
 
 Endpoint: `/create-board`
+
 Required:
 - `token`
 - `secret`
@@ -93,6 +98,7 @@ Required:
 ### Create a Trello list
 
 Endpoint: `/create-list`
+
 Required:
 - `token`
 - `secret`
