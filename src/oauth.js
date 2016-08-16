@@ -2,10 +2,11 @@ import { OAuth } from 'oauth'
 import conf from './config.js'
 import url from 'url'
 
+const appName = 'Backlog sync'
+
 const requestURL = "https://trello.com/1/OAuthGetRequestToken"
 const accessURL = "https://trello.com/1/OAuthGetAccessToken"
 const authorizeURL = "https://trello.com/1/OAuthAuthorizeToken"
-const appName = 'Backlog sync'
 
 const ip = conf.get('ip')
 const port = conf.get('port')
@@ -22,7 +23,7 @@ const oauthSecrets = {}
 export const login = (req, res) => {
   oauth.getOAuthRequestToken((error, token, tokenSecret) => {
     oauthSecrets[token] = tokenSecret
-    res.writeHead(302, { 'Location': `${authorizeURL}?oauth_token=${token}&name=${appName}` })
+    res.writeHead(302, { 'Location': `${authorizeURL}?oauth_token=${token}&name=${appName}&scope=read,write` })
     res.end()
   })
 }

@@ -12,3 +12,15 @@ export const getUserBoards = (token, secret) => {
     })
   })
 }
+
+export const createBoard = (token, secret, name) => {
+  return new Promise((resolve, reject) => {
+    oauth.post('https://api.trello.com/1/boards', token, secret, { name }, (e, data) => {
+      if (e) {
+        reject(e)
+      }
+
+      resolve(JSON.parse(data))
+    })
+  })
+}
