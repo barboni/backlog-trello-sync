@@ -4,7 +4,7 @@ const apiBase = 'https://api.trello.com/1'
 
 function request(type, path, token, secret, data) {
 
-  if (['get', 'post', 'put', 'delete'].indexOf(type) < 0) {
+  if (!['get', 'post', 'put', 'delete'].includes(type)) {
     throw new Error('request type not supported')
   }
 
@@ -30,10 +30,14 @@ export const getUserBoards = (token, secret) => {
   return request('get', 'members/me/boards', token, secret)
 }
 
-export const createBoard = (token, secret, name) => {
+export const createBoard = (token, secret, { name }) => {
   return request('post', 'boards', token, secret, { name })
 }
 
-export const createList = (token, secret, name, boardId) => {
+export const createList = (token, secret, { name, boardId }) => {
   return request('lists', token, secret, { name, idBoard: boardId })
+}
+
+export const createCard = (token, secret, { listId, name, description, position }) => {
+  return request('cards', token, secret, { listId, name, description, position, due: null })
 }
