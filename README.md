@@ -86,6 +86,15 @@ Required:
 - `token`
 - `secret`
 
+Endpoint: `/list-lists`
+
+### List Trello lists for board
+
+Required:
+- `token`
+- `secret`
+- `boardId`: the id of the board for which to get the lists
+
 ### Create a Trello board
 
 Endpoint: `/create-board`

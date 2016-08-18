@@ -2,7 +2,7 @@ import express from 'express'
 import conf from './config.js'
 import bodyParser from 'body-parser'
 import { login, cb } from './oauth.js'
-import { getUserBoards, createBoard, createList } from './trello.js'
+import { getUserBoards, createBoard, createList, getLists } from './trello.js'
 
 const app = express()
 
@@ -21,6 +21,12 @@ app.post('/list-boards', (req, res) => {
   getUserBoards(token, secret)
     .then(boards => boards.map(b => b.name))
     .then(names => res.json(names))
+})
+
+app.post('/list-lists', (req, res) => {
+  const { body: { token, secret, boardId } } = req
+  getLists(token, secret, { boardId })
+    .then(result => res.json(result))
 })
 
 app.post('/create-board', (req, res) => {

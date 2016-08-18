@@ -30,6 +30,10 @@ export const getUserBoards = (token, secret) => {
   return request('get', 'members/me/boards', token, secret)
 }
 
+export const getLists = (token, secret, boardId) => {
+  return request('get', `boards/${boardId}/lists`)
+}
+
 export const createBoard = (token, secret, { name }) => {
   return request('post', 'boards', token, secret, { name })
 }
