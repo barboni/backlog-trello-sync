@@ -24,8 +24,8 @@ if (conf.get('env') === 'development') {
 app.post('/list-boards', (req, res) => {
   const { body: { token, secret } } = req
   getUserBoards(token, secret)
-    .then(boards => boards.map(b => b.name))
-    .then(names => res.json(names))
+    .then(boards => boards.map(b => ({ id: b.id, name: b.name })))
+    .then(boards => res.json(boards))
 })
 
 app.post('/list-lists', (req, res) => {

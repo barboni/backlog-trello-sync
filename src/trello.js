@@ -19,9 +19,9 @@ function request(type, path, token, secret, data) {
     }
 
     if (data) {
-      method(`${apiBase}/${path}`, token, secret, data, resolveReject)
+      method.call(oauth, `${apiBase}/${path}`, token, secret, data, resolveReject)
     } else {
-      method(`${apiBase}/${path}`, token, secret, resolveReject)
+      method.call(oauth, `${apiBase}/${path}`, token, secret, resolveReject)
     }
   })
 }

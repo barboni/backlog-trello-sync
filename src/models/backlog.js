@@ -1,15 +1,12 @@
 import { Schema } from 'mongoose'
-import { schema as label } from './Label'
+import { schema as label } from './label'
 
 export const schema = new Schema({
   _id: String,
   labels: [label],
   sync: {
     trello: {
-      id: {
-        type: String,
-        required: true
-      },
+      id: String,
       token: String,
       secret: String
     }

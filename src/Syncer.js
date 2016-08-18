@@ -24,7 +24,7 @@ export default class Syncer {
   }
 
   addBacklog(token, secret, backlogId, boardId) {
-    return Backlog.findOne(backlogId).exec().then(backlog => {
+    return Backlog.findOne({ _id: backlogId }).exec().then(backlog => {
       if (!backlog) {
         throw new Error('Backlog does not exist')
       }
@@ -34,7 +34,7 @@ export default class Syncer {
   }
 
   removeBacklog(token, secret, backlogId) {
-    return Backlog.findOne(backlogId).exec().then(backlog => {
+    return Backlog.findOne({ _id: backlogId }).exec().then(backlog => {
       if (!backlog) {
         throw new Error('Backlog does not exist')
       }
