@@ -39,9 +39,9 @@ export const createBoard = (token, secret, { name }) => {
 }
 
 export const createList = (token, secret, { name, boardId }) => {
-  return request('lists', token, secret, { name, idBoard: boardId })
+  return request('post', 'lists', token, secret, { name, idBoard: boardId })
 }
 
 export const createCard = (token, secret, { listId, name, description, position }) => {
-  return request('cards', token, secret, { listId, name, description, position, due: null })
+  return request('post', 'cards', token, secret, { idList: listId, name, desc: description, position, due: null })
 }

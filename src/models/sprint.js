@@ -1,5 +1,6 @@
 import { Schema } from 'mongoose'
 import random from 'meteor-random'
+import { Card } from './'
 
 export const schema = new Schema({
   _id: { type: String, default: () => random.id() },
@@ -12,3 +13,8 @@ export const schema = new Schema({
   isTail: { type: Boolean, default: false },
   backlogId: String,
 })
+
+schema.virtual('cards')
+  .get(function() {
+    return Card.find({ _id: { $in: this.cardIds } }).exec()
+  })

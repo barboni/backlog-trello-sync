@@ -47,19 +47,22 @@ app.post('/create-list', (req, res) => {
 })
 
 app.post('/synchronize', (req, res) => {
-  const { body: { token, secret, backlogId, boardId } } = req
-  syncer.addBacklog(token, secret, backlogId, boardId)
+  const { body: { token, secret, backlogId, listId } } = req
+  syncer.addBacklog(token, secret, backlogId, listId)
+    .then(backlog => {
+      return syncer.exportBacklog(backlog)
+    })
     .then(result => res.json(result))
 })
 
 app.put('/synchronize', (req, res) => {
-  const { body: { token, secret, backlogId, boardId } } = req
+  const { body: { token, secret, backlogId, listId } } = req
   let promise
 
-  if (!boardId) {
+  if (!listId) {
     promise = syncer.removeBacklog(token, secret, backlogId)
   } else {
-    promise = syncer.addBacklog(token, secret, backlogId, boardId)
+    promise = syncer.addBacklog(token, secret, backlogId, listId)
   }
 
   promise.then(result => res.json(result))
