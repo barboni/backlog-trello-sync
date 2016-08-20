@@ -34,6 +34,10 @@ export const getLists = (token, secret, boardId) => {
   return request('get', `boards/${boardId}/lists`)
 }
 
+export const getBoardIdForList = (token, secret, listId) => {
+  return request('get', `lists/${listId}/idBoard`).then(result => result['_value'])
+}
+
 export const createBoard = (token, secret, { name }) => {
   return request('post', 'boards', token, secret, { name })
 }
@@ -44,4 +48,8 @@ export const createList = (token, secret, { name, boardId }) => {
 
 export const createCard = (token, secret, { listId, name, description, position }) => {
   return request('post', 'cards', token, secret, { idList: listId, name, desc: description, position, due: null })
+}
+
+export const createLabel = (token, secret, { boardId, name, color }) => {
+  return request('post', 'labels', token, secret, { idBoard: boardId, name, color })
 }

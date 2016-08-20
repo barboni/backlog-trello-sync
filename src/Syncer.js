@@ -1,5 +1,5 @@
-import mongoose, { Backlog, Sprint, Card } from './models'
-import { createCard } from './trello'
+import mongoose, { Backlog, Sprint } from './models'
+import { createCard, createLabel, getBoardIdForList } from './trello'
 
 export default class Syncer {
   constructor(dbUrl) {
@@ -44,22 +44,44 @@ export default class Syncer {
     })
   }
 
-  exportBacklog(backlog) {
-    const { _id: backlogId, labels, sync: { trello: { token, secret, id: listId } } } = backlog
-
-    return Sprint.findOne({ backlogId, isActive: true }).exec().then(sprint => {
+  exportSprintToList(token, secret, sprintId, listId) {
+    return Sprint.findOne({ _id: sprintId }).exec().then(sprint => {
       if (!sprint) {
-        throw new Error('No active sprint')
+        throw new Error('Given sprint does not exist')
       }
 
       return sprint.cards.then(cards => cards.map((card) => {
-        const { title, description } = card
+        const { title, description, estimate } = card
         return createCard(token, secret, {
           listId,
-          name: title,
+          name: `[${estimate}] ${title}`,
           description
         })
       }))
     })
+  }
+
+  exportLabels(token, secret, labels, boardId) {
+    return labels.map(label => {
+      return createLabel(token, secret, {
+        boardId,
+        name: label.name || '',
+        color: label.color || null
+      })
+    })
+  }
+
+  exportActiveSprintFromBacklog(backlog) {
+    const { _id: backlogId, labels, sync: { trello: { token, secret, id: listId } } } = backlog
+
+    return getBoardIdForList(token, secret, listId)
+      .then(boardId => {
+        this.exportLabels(token, secret, labels, boardId)
+      })
+      .then(() => {
+        return Sprint.findOne({ backlogId, isActive: true }).then(sprint => {
+          return this.exportSprintToList(token, secret, sprint._id, listId)
+        })
+      })
   }
 }
