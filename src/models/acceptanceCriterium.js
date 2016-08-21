@@ -1,26 +1,29 @@
 import { Schema } from 'mongoose'
 
 export const schema = new Schema({
-  _id: String,
-  name: String,
-  color: String,
+  _id: false,
+  id: String,
+  title: String,
+  done: Boolean,
   sync: {
     trello: {
-      id: String
+      id: String,
+      checklistId: String
     }
   },
 })
 
-schema.methods.addTrelloLabel = function(token, secret, labelId) {
+schema.methods.addTrelloChecklistItem = function(token, secret, itemId, checklistId) {
   //TODO check if authorized
   this.sync = this.sync || {}
   this.sync.trello = {
-    id: labelId
+    id: itemId,
+    checklistId
   }
   return this.save()
 }
 
-schema.methods.removeTrelloLabel = function(token, secret) {
+schema.methods.removeTrelloChecklistItem = function(token, secret) {
   //TODO check if authorized
   if (!this.sync || !this.sync.trello) {
     throw new Error('No Trello list synchronized')

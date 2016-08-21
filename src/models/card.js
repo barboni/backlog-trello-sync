@@ -1,4 +1,5 @@
 import { Schema } from 'mongoose'
+import { schema as acceptanceCriterium } from './acceptanceCriterium'
 import random from 'meteor-random'
 
 export const schema = new Schema({
@@ -6,7 +7,7 @@ export const schema = new Schema({
   title: String,
   description: String,
   status: { type: String, default: 'not-ready' },
-  acceptanceCriteria: { type: Array, default: [] },
+  acceptanceCriteria: { type: acceptanceCriterium, default: [] },
   labelIds: { type: [String], default: [] },
   attachments: { type: [String], default: [] },
   sync: {
