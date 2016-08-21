@@ -2,6 +2,8 @@ import oauth from './oauth.js'
 
 const apiBase = 'https://api.trello.com/1'
 
+const requests = {}
+
 function request(type, path, token, secret, data) {
 
   if (!['get', 'post', 'put', 'delete'].includes(type)) {
@@ -12,6 +14,7 @@ function request(type, path, token, secret, data) {
 
   return new Promise((resolve, reject) => {
     function resolveReject(e, responseData) {
+      requests[token]--
       if (e) {
         console.log(data, e)
         reject(e)
@@ -19,10 +22,28 @@ function request(type, path, token, secret, data) {
       resolve(JSON.parse(responseData))
     }
 
-    if (data) {
-      method.call(oauth, `${apiBase}/${path}`, token, secret, data, resolveReject)
+    const openRequests = requests[token]
+    const totalOpenRequests = requests.reduce((total, numberOfRequests) => {
+      total += numberOfRequests
+      return total
+    }, 0)
+
+    if (openRequests >= 1 || totalOpenRequests >=3) {
+      setTimeout(function() {
+        resolve(request(type, path, token, secret, data))
+      }, 100)
     } else {
-      method.call(oauth, `${apiBase}/${path}`, token, secret, resolveReject)
+      if (openRequests === undefined) {
+        requests[token] = 1
+      } else {
+        requests[token]++
+      }
+
+      if (data) {
+        method.call(oauth, `${apiBase}/${path}`, token, secret, data, resolveReject)
+      } else {
+        method.call(oauth, `${apiBase}/${path}`, token, secret, resolveReject)
+      }
     }
   })
 }

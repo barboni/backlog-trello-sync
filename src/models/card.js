@@ -7,7 +7,7 @@ export const schema = new Schema({
   title: String,
   description: String,
   status: { type: String, default: 'not-ready' },
-  acceptanceCriteria: { type: acceptanceCriterium, default: [] },
+  acceptanceCriteria: { type: [acceptanceCriterium], default: [] },
   labelIds: { type: [String], default: [] },
   attachments: { type: [String], default: [] },
   sync: {
