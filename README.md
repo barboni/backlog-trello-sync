@@ -80,15 +80,15 @@ Each request needs to be a POST request and have the keys `token` and `secret` i
 
 ### List Trello boards
 
-Endpoint: `/list-boards`
+Endpoint: `POST /list-boards`
 
 Required:
 - `token`
 - `secret`
 
-Endpoint: `/list-lists`
-
 ### List Trello lists for board
+
+Endpoint: `POST /list-lists`
 
 Required:
 - `token`
@@ -97,7 +97,7 @@ Required:
 
 ### Create a Trello board
 
-Endpoint: `/create-board`
+Endpoint: `POST /create-board`
 
 Required:
 - `token`
@@ -106,10 +106,20 @@ Required:
 
 ### Create a Trello list
 
-Endpoint: `/create-list`
+Endpoint: `POST /create-list`
 
 Required:
 - `token`
 - `secret`
 - `name`: the name of the list
 - `boardId`: the id of the board to create the list in
+
+### Export the active sprint to a Trello list
+
+Endpoint: `POST /synchronize`
+
+Required:
+- `token`
+- `secret`
+- `backlogId`
+- `listId`
