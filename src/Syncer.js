@@ -74,28 +74,40 @@ export default class Syncer {
       })))
   }
 
-  exportLabels(token, secret, labels, boardId) {
-    return clearLabels(token, secret, { boardId }).then(() => {
-      return Promise.all(labels.map(label => {
-        return createLabel(token, secret, {
-          boardId,
-          name: label.name || '',
-          color: labelColors[label.color] || null
-        })
-      }))
+  addLabel(token, secret, boardId, backlog, label) {
+    return createLabel(token, secret, {
+      boardId,
+      name: label.name || '',
+      color: labelColors[label.color] || null
+    }).then(trelloLabel => {
+      return backlog.addTrelloLabel(token, secret, label._id, trelloLabel.id)
     })
   }
 
+    })
+  }
+
+  exportLabels(token, secret, backlog, boardId) {
+    const { labels } = backlog
+
+    return clearLabels(token, secret, { boardId })
+      .then(() => {
+        return Promise.all(labels.map(this.addLabel.bind(this, token, secret, boardId, backlog)))
+      })
+      .then(() => {
+        return Backlog.findById(backlog._id).exec()
+          .then(backlogWithLabels => backlogWithLabels.labels.reduce((mapping, label) => {
+            const { _id, sync: { trello: { id } } } = label
+            mapping[_id] = id
+            return mapping
+          }, {}))
+      })
+  }
+
   exportBacklog(backlog) {
-    const { _id: backlogId, labels, sync: { trello: { token, secret, id: boardId } } } = backlog
+    const { _id: backlogId, sync: { trello: { token, secret, id: boardId } } } = backlog
 
-    return this.exportLabels(token, secret, labels, boardId).then((trelloLabels) => {
-      const labelsMapping = trelloLabels.reduce((mapping, trelloLabel, i) => {
-        const label = labels[i]
-        mapping[label._id] = trelloLabel.id
-        return mapping
-      }, {})
-
+    return this.exportLabels(token, secret, backlog, boardId).then(labelsMapping => {
       return Sprint.find({ backlogId, 'sync.trello': { $exists: true } }).exec().then(sprints => {
         return Promise.all(sprints.map(sprint => {
           return this.exportSprintToList(token, secret, sprint, labelsMapping)

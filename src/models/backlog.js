@@ -31,3 +31,24 @@ schema.methods.removeTrelloBoard = function(token, secret) {
   this.sync.trello = undefined
   return this.save()
 }
+
+schema.methods.addTrelloLabel = function(token, secret, labelId, trelloLabelId) {
+  //TODO check if authorized
+  const label = this.labels.id(labelId)
+  label.sync = label.sync || {}
+  label.sync.trello = {
+    id: trelloLabelId
+  }
+  return this.save()
+}
+
+schema.methods.removeTrelloLabel = function(token, secret, labelId) {
+  //TODO check if authorized
+  const label = this.labels.id(labelId)
+  if (!label.sync || !label.sync.trello) {
+    throw new Error('No Trello list synchronized')
+  }
+  label.sync.trello = undefined
+  return this.save()
+}
+

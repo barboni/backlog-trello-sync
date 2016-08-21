@@ -11,11 +11,12 @@ function request(type, path, token, secret, data) {
   const method = oauth[type]
 
   return new Promise((resolve, reject) => {
-    function resolveReject(e, data) {
+    function resolveReject(e, responseData) {
       if (e) {
+        console.log(data, e)
         reject(e)
       }
-      resolve(JSON.parse(data))
+      resolve(JSON.parse(responseData))
     }
 
     if (data) {
@@ -64,7 +65,7 @@ export const createCard = (token, secret, { listId, name, description, position,
     name,
     desc: description,
     position,
-    idLabels: labelIds.join(','),
+    idLabels: labelIds.length ? labelIds.join(',') : null,
     due: null })
 }
 

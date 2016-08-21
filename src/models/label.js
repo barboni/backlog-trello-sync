@@ -10,21 +10,3 @@ export const schema = new Schema({
     }
   },
 })
-
-schema.methods.addTrelloLabel = function(token, secret, labelId) {
-  //TODO check if authorized
-  this.sync = this.sync || {}
-  this.sync.trello = {
-    id: labelId
-  }
-  return this.save()
-}
-
-schema.methods.removeTrelloLabel = function(token, secret) {
-  //TODO check if authorized
-  if (!this.sync || !this.sync.trello) {
-    throw new Error('No Trello list synchronized')
-  }
-  this.sync.trello = undefined
-  return this.save()
-}
