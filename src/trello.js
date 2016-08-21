@@ -73,6 +73,14 @@ export const createLabel = (token, secret, { boardId, name, color }) => {
   return request('post', 'labels', token, secret, { idBoard: boardId, name, color })
 }
 
+export const createChecklist = (token, secret, { cardId, name }) => {
+  return request('post', 'checklists', token, secret, { idCard: cardId, name })
+}
+
+export const createChecklistItem = (token, secret, { checklistId, name, checked }) => {
+  return request('post', `checklists/${checklistId}/checkItems`, token, secret, { name, checked })
+}
+
 export const clearLabels = (token, secret, { boardId }) => {
   return request('get', `boards/${boardId}/labels`, token, secret).then(labels => {
     return Promise.all(labels.map(label => {

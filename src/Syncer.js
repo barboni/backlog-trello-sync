@@ -1,5 +1,10 @@
 import mongoose, { Backlog, Sprint } from './models'
-import { createCard, createLabel, getBoardIdForList, clearLabels, labelColors, clearCards } from './trello'
+import {
+  getBoardIdForList,
+  createCard, createLabel, createChecklist, createChecklistItem,
+  clearLabels, clearCards,
+  labelColors,
+} from './trello'
 
 export default class Syncer {
   constructor(dbUrl) {
@@ -55,13 +60,18 @@ export default class Syncer {
     const trelloLabelIds = labelIds.map(labelId => labelsMapping[labelId])
 
     return createCard(token, secret, {
-      listId,
-      name: `(${estimate || '?'}) ${title}`,
-      description,
-      labelIds: trelloLabelIds
-    }).then(trelloCard => {
-      return card.addTrelloCard(token, secret, trelloCard.id)
-    })
+        listId,
+        name: `(${estimate || '?'}) ${title}`,
+        description,
+        labelIds: trelloLabelIds
+      })
+      .then(trelloCard => {
+        return card.addTrelloCard(token, secret, trelloCard.id)
+      })
+      .then(newCard => {
+        this.exportAcceptanceCriteria(token, secret, newCard)
+        return newCard
+      })
   }
 
   exportSprintToList(token, secret, sprint, labelsMapping) {
@@ -84,7 +94,24 @@ export default class Syncer {
     })
   }
 
+  addAcceptanceCriterium(token, secret, checklistId, ac) {
+    return createChecklistItem(token, secret, {
+      checklistId: checklistId,
+      name: ac.title,
+      checked: ac.done
+    }).then(checklistItem => {
+      return ac.addTrelloChecklistItem(token, secret, checklistItem.id, checklistId)
     })
+  }
+
+  exportAcceptanceCriteria(token, secret, card) {
+    const { sync: { trello: { id: cardId } }, acceptanceCriteria } = card
+    return createChecklist(token, secret, { cardId, name: 'Acceptance criteria' })
+      .then(checklist => {
+        return Promise.all(acceptanceCriteria.map(acceptanceCriterium => {
+          return this.addAcceptanceCriterium(token, secret, checklist.id, acceptanceCriterium)
+        }))
+      })
   }
 
   exportLabels(token, secret, backlog, boardId) {
