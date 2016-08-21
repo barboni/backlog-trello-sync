@@ -71,17 +71,17 @@ export default class Syncer {
     })
   }
 
-  exportActiveSprintFromBacklog(backlog) {
+  exportBacklog(backlog) {
     const { _id: backlogId, labels, sync: { trello: { token, secret, id: listId } } } = backlog
 
     return getBoardIdForList(token, secret, listId)
-      .then(boardId => {
-        this.exportLabels(token, secret, labels, boardId)
-      })
-      .then(() => {
-        return Sprint.findOne({ backlogId, isActive: true }).then(sprint => {
-          return this.exportSprintToList(token, secret, sprint._id, listId)
-        })
-      })
+      .then(boardId => this.exportLabels(token, secret, labels, boardId))
+      .then(this.exportActiveSprintFromBacklogToList.bind(this, token, secret, backlogId, listId))
+  }
+
+  exportActiveSprintFromBacklogToList(token, secret, backlogId, listId) {
+    return Sprint.findOne({ backlogId, isActive: true }).then(sprint => {
+      return this.exportSprintToList(token, secret, sprint._id, listId)
+    })
   }
 }

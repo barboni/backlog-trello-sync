@@ -50,7 +50,7 @@ app.post('/synchronize', (req, res) => {
   const { body: { token, secret, backlogId, listId } } = req
   syncer.addBacklog(token, secret, backlogId, listId)
     .then(backlog => {
-      return syncer.exportActiveSprintFromBacklog(backlog)
+      return syncer.exportBacklog(backlog)
     })
     .then(result => res.json(result))
 })
