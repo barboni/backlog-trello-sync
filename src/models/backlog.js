@@ -13,11 +13,11 @@ export const schema = new Schema({
   }
 })
 
-schema.methods.addTrelloBoard = function(token, secret, listId) {
+schema.methods.addTrelloBoard = function(token, secret, boardId) {
   //TODO check if authorized
   this.sync = this.sync || {}
   this.sync.trello = {
-    id: listId,
+    id: boardId,
     token, secret
   }
   return this.save()

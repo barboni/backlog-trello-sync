@@ -22,8 +22,13 @@ const oauthSecrets = {}
 
 export const login = (req, res) => {
   oauth.getOAuthRequestToken((error, token, tokenSecret) => {
+    const scope = 'read,write'
+    const expiration = 'never'
+    const locationUrl = `${authorizeURL}?oauth_token=${token}&name=${appName}&scope=${scope}&expiration=${expiration}`
+
     oauthSecrets[token] = tokenSecret
-    res.writeHead(302, { 'Location': `${authorizeURL}?oauth_token=${token}&name=${appName}&scope=read,write` })
+
+    res.writeHead(302, { 'Location': locationUrl })
     res.end()
   })
 }

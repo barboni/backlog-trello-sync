@@ -26,16 +26,28 @@ function request(type, path, token, secret, data) {
   })
 }
 
+export const labelColors = {
+  green: 'green',
+  yellow: 'yellow',
+  orange: 'orange',
+  red: 'red',
+  purple: 'purple',
+  blue: 'blue',
+  lime: 'lime',
+  pink: 'pink',
+  black: 'black'
+}
+
 export const getUserBoards = (token, secret) => {
   return request('get', 'members/me/boards', token, secret)
 }
 
-export const getLists = (token, secret, boardId) => {
-  return request('get', `boards/${boardId}/lists`)
+export const getLists = (token, secret, { boardId }) => {
+  return request('get', `boards/${boardId}/lists`, token, secret)
 }
 
-export const getBoardIdForList = (token, secret, listId) => {
-  return request('get', `lists/${listId}/idBoard`).then(result => result['_value'])
+export const getBoardIdForList = (token, secret, { listId }) => {
+  return request('get', `lists/${listId}/idBoard`, token, secret).then(result => result['_value'])
 }
 
 export const createBoard = (token, secret, { name }) => {
@@ -52,4 +64,20 @@ export const createCard = (token, secret, { listId, name, description, position 
 
 export const createLabel = (token, secret, { boardId, name, color }) => {
   return request('post', 'labels', token, secret, { idBoard: boardId, name, color })
+}
+
+export const clearLabels = (token, secret, { boardId }) => {
+  return request('get', `boards/${boardId}/labels`, token, secret).then(labels => {
+    return Promise.all(labels.map(label => {
+      return request('delete', `labels/${label.id}`, token, secret)
+    }))
+  })
+}
+
+export const clearCards = (token, secret, { listId }) => {
+  return request('get', `lists/${listId}/cards`, token, secret).then(cards => {
+    return Promise.all(cards.map(card => {
+      return request('delete', `cards/${card.id}`, token, secret)
+    }))
+  })
 }
