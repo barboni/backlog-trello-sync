@@ -97,13 +97,13 @@ export default class Syncer {
     })
   }
 
-  addAcceptanceCriterium(token, secret, checklistId, ac) {
+  addAcceptanceCriterium(token, secret, checklistId, ac, card) {
     return createChecklistItem(token, secret, {
       checklistId: checklistId,
       name: ac.title,
       checked: ac.done
     }).then(checklistItem => {
-      return ac.addTrelloChecklistItem(token, secret, checklistItem.id, checklistId)
+      return card.addTrelloChecklistItem(token, secret, ac.id, checklistItem.id, checklistId)
     })
   }
 
@@ -112,7 +112,7 @@ export default class Syncer {
     return createChecklist(token, secret, { cardId, name: 'Acceptance criteria' })
       .then(checklist => {
         return Promise.mapSeries(acceptanceCriteria, acceptanceCriterium => {
-          return this.addAcceptanceCriterium(token, secret, checklist.id, acceptanceCriterium)
+          return this.addAcceptanceCriterium(token, secret, checklist.id, acceptanceCriterium, card)
         })
       })
   }

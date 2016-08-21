@@ -34,3 +34,24 @@ schema.methods.removeTrelloCard = function(token, secret) {
   this.sync.trello = undefined
   return this.save()
 }
+
+schema.methods.addTrelloChecklistItem = function(token, secret, acId, itemId, checklistId) {
+  //TODO check if authorized
+  const ac = this.acceptanceCriteria.find(ac => ac.id === acId)
+  ac.sync = ac.sync || {}
+  ac.sync.trello = {
+    id: itemId,
+    checklistId
+  }
+  return this.save()
+}
+
+schema.methods.removeTrelloChecklistItem = function(token, secret, acId) {
+  //TODO check if authorized
+  const ac = this.acceptanceCriteria.id(acId)
+  if (!ac.sync || !ac.sync.trello) {
+    throw new Error('No Trello list synchronized')
+  }
+  ac.sync.trello = undefined
+  return this.save()
+}

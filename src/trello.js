@@ -27,7 +27,7 @@ function request(type, path, token, secret, data) {
     if (openRequests >= 1) {
       setTimeout(function() {
         resolve(request(type, path, token, secret, data))
-      }, 100)
+      }, 10)
     } else {
       if (openRequests === undefined) {
         requests[token] = 1
