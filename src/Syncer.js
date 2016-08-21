@@ -50,25 +50,28 @@ export default class Syncer {
     })
   }
 
-  addCard(token, secret, listId, card) {
-    const { title, description, estimate } = card
+  addCard(token, secret, listId, card, labelsMapping) {
+    const { title, description, estimate, labelIds } = card
+    const trelloLabelIds = labelIds.map(labelId => labelsMapping[labelId])
 
     return createCard(token, secret, {
       listId,
       name: `(${estimate || '?'}) ${title}`,
-      description
+      description,
+      labelIds: trelloLabelIds
     }).then(trelloCard => {
       return card.addTrelloCard(token, secret, trelloCard.id)
     })
   }
 
-  exportSprintToList(token, secret, sprint) {
+  exportSprintToList(token, secret, sprint, labelsMapping) {
     const { sync: { trello: { id: listId } } } = sprint
 
-    return clearCards(token, secret, { listId }).then(() => {
-        return sprint.cards
-      })
-      .then(cards => Promise.all(cards.map(this.addCard.bind(this, token, secret, listId))))
+    return clearCards(token, secret, { listId })
+      .then(() => sprint.cards)
+      .then(cards => Promise.all(cards.map(card => {
+        return this.addCard(token, secret, listId, card, labelsMapping)
+      })))
   }
 
   exportLabels(token, secret, labels, boardId) {
@@ -86,11 +89,16 @@ export default class Syncer {
   exportBacklog(backlog) {
     const { _id: backlogId, labels, sync: { trello: { token, secret, id: boardId } } } = backlog
 
-    return this.exportLabels(token, secret, labels, boardId).then((labels) => {
-      console.log(labels)
+    return this.exportLabels(token, secret, labels, boardId).then((trelloLabels) => {
+      const labelsMapping = trelloLabels.reduce((mapping, trelloLabel, i) => {
+        const label = labels[i]
+        mapping[label._id] = trelloLabel.id
+        return mapping
+      }, {})
+
       return Sprint.find({ backlogId, 'sync.trello': { $exists: true } }).exec().then(sprints => {
         return Promise.all(sprints.map(sprint => {
-          return this.exportSprintToList(token, secret, sprint)
+          return this.exportSprintToList(token, secret, sprint, labelsMapping)
         }))
       })
     }).catch(e => {

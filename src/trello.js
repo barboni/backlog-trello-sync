@@ -58,8 +58,14 @@ export const createList = (token, secret, { name, boardId }) => {
   return request('post', 'lists', token, secret, { name, idBoard: boardId })
 }
 
-export const createCard = (token, secret, { listId, name, description, position }) => {
-  return request('post', 'cards', token, secret, { idList: listId, name, desc: description, position, due: null })
+export const createCard = (token, secret, { listId, name, description, position, labelIds }) => {
+  return request('post', 'cards', token, secret, {
+    idList: listId,
+    name,
+    desc: description,
+    position,
+    idLabels: labelIds.join(','),
+    due: null })
 }
 
 export const createLabel = (token, secret, { boardId, name, color }) => {
