@@ -1,4 +1,5 @@
 import mongoose, { Backlog, Sprint } from './models'
+import Promise from 'bluebird'
 import {
   getBoardIdForList,
   createCard, createLabel, createChecklist, createChecklistItem,
@@ -79,9 +80,11 @@ export default class Syncer {
 
     return clearCards(token, secret, { listId })
       .then(() => sprint.cards)
-      .then(cards => Promise.all(cards.map(card => {
-        return this.addCard(token, secret, listId, card, labelsMapping)
-      })))
+      .then(cards => {
+        return Promise.mapSeries(cards, card => {
+          return this.addCard(token, secret, listId, card, labelsMapping)
+        })
+      })
   }
 
   addLabel(token, secret, boardId, backlog, label) {
@@ -108,9 +111,9 @@ export default class Syncer {
     const { sync: { trello: { id: cardId } }, acceptanceCriteria } = card
     return createChecklist(token, secret, { cardId, name: 'Acceptance criteria' })
       .then(checklist => {
-        return Promise.all(acceptanceCriteria.map(acceptanceCriterium => {
+        return Promise.mapSeries(acceptanceCriteria, acceptanceCriterium => {
           return this.addAcceptanceCriterium(token, secret, checklist.id, acceptanceCriterium)
-        }))
+        })
       })
   }
 
@@ -119,7 +122,7 @@ export default class Syncer {
 
     return clearLabels(token, secret, { boardId })
       .then(() => {
-        return Promise.all(labels.map(this.addLabel.bind(this, token, secret, boardId, backlog)))
+        return Promise.mapSeries(labels, this.addLabel.bind(this, token, secret, boardId, backlog))
       })
       .then(() => {
         return Backlog.findById(backlog._id).exec()
@@ -136,9 +139,9 @@ export default class Syncer {
 
     return this.exportLabels(token, secret, backlog, boardId).then(labelsMapping => {
       return Sprint.find({ backlogId, 'sync.trello': { $exists: true } }).exec().then(sprints => {
-        return Promise.all(sprints.map(sprint => {
+        return Promise.mapSeries(sprints, sprint => {
           return this.exportSprintToList(token, secret, sprint, labelsMapping)
-        }))
+        })
       })
     }).catch(e => {
       console.log(e.stack)

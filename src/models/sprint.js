@@ -21,7 +21,9 @@ export const schema = new Schema({
 
 schema.virtual('cards')
   .get(function() {
-    return Card.find({ _id: { $in: this.cardIds } }).exec()
+    return Card.find({ _id: { $in: this.cardIds } }).exec().then(cards => cards.sort((a, b) => {
+      return this.cardIds.indexOf(a._id) - this.cardIds.indexOf(b._id)
+    }))
   })
 
 schema.methods.addTrelloList = function(token, secret, listId) {

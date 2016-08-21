@@ -23,12 +23,8 @@ function request(type, path, token, secret, data) {
     }
 
     const openRequests = requests[token]
-    const totalOpenRequests = requests.reduce((total, numberOfRequests) => {
-      total += numberOfRequests
-      return total
-    }, 0)
 
-    if (openRequests >= 1 || totalOpenRequests >=3) {
+    if (openRequests >= 1) {
       setTimeout(function() {
         resolve(request(type, path, token, secret, data))
       }, 100)
