@@ -2,14 +2,15 @@ import mongoose, { Backlog, Sprint } from './models'
 import Promise from 'bluebird'
 import {
   getBoardIdForList,
-  createCard, createLabel, createChecklist, createChecklistItem,
+  createCard, createLabel, createChecklist, createChecklistItem, createWebhook,
   clearLabels, clearCards,
   labelColors,
 } from './trello'
 
 export default class Syncer {
-  constructor(dbUrl) {
+  constructor(dbUrl, callbackURL) {
     this.dbUrl = dbUrl
+    this.callbackURL = callbackURL
     this.db = null
     this.running = false
   }
@@ -57,7 +58,7 @@ export default class Syncer {
   }
 
   addCard(token, secret, listId, card, labelsMapping) {
-    const { title, description, estimate, labelIds } = card
+    const { _id, title, description, estimate, labelIds } = card
     const trelloLabelIds = labelIds.map(labelId => labelsMapping[labelId])
 
     return createCard(token, secret, {
@@ -65,6 +66,14 @@ export default class Syncer {
         name: `(${estimate || '?'}) ${title}`,
         description,
         labelIds: trelloLabelIds
+      })
+      .then(trelloCard => {
+        const modelId = trelloCard.id
+        const description = 'Card'
+        return createWebhook(token, secret, {
+          modelId, description,
+          callbackURL: `${this.callbackURL}/card?id=${_id}`
+        }).then(() => trelloCard)
       })
       .then(trelloCard => {
         return card.addTrelloCard(token, secret, trelloCard.id)

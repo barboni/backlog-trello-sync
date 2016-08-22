@@ -44,6 +44,12 @@ const conf = convict({
     format: 'url',
     default: 'localhost:27017',
     env: 'DB_URL'
+  },
+  callbackUrl: {
+    doc: 'The URI of the own external webhook URL to pass to the Trello API.',
+    format: 'url',
+    default: 'http://localhost:4001/webhooks/',
+    env: 'CALLBACK_URL'
   }
 })
 

@@ -9,8 +9,9 @@ const app = express()
 
 const port = conf.get('port')
 const dbUrl = conf.get('dbUrl')
+const callbackURL = conf.get('callbackUrl')
 
-const syncer = new Syncer(dbUrl)
+const syncer = new Syncer(dbUrl, callbackURL)
 syncer.start()
 
 app.use(bodyParser.json()) // for parsing application/json
@@ -66,6 +67,26 @@ app.put('/synchronize', (req, res) => {
   }
 
   promise.then(result => res.json(result))
+})
+
+app.head('/webhooks/:type', (req, res) => {
+  if (!['backlog', 'sprint', 'card'].includes(req.params.type)) {
+    return res.status(403).send()
+  }
+
+  res.status(200).send()
+})
+
+app.post('/webhooks/:type', (req, res) => {
+  const { body, params: { type }, query: { id } } = req
+
+  if (!['board', 'list', 'card'].includes(type)) {
+    return res.status(403).send()
+  }
+
+  console.log(type, id, body)
+
+  res.status(200).send()
 })
 
 app.listen(port, () => {

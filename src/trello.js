@@ -113,3 +113,7 @@ export const clearCards = (token, secret, { listId }) => {
     }))
   })
 }
+
+export const createWebhook = (token, secret, { callbackURL, modelId, description }) => {
+  return request('post', `webhooks`, token, secret, { callbackURL, idModel: modelId, description })
+}
