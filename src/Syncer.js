@@ -118,12 +118,15 @@ export default class Syncer {
 
   exportAcceptanceCriteria(token, secret, card) {
     const { sync: { trello: { id: cardId } }, acceptanceCriteria } = card
-    return createChecklist(token, secret, { cardId, name: 'Acceptance criteria' })
-      .then(checklist => {
-        return Promise.mapSeries(acceptanceCriteria, acceptanceCriterium => {
-          return this.addAcceptanceCriterium(token, secret, checklist.id, acceptanceCriterium, card)
+    if (acceptanceCriteria.length > 0) {
+      return createChecklist(token, secret, { cardId, name: 'Acceptance criteria' })
+        .then(checklist => {
+          return Promise.mapSeries(acceptanceCriteria, acceptanceCriterium => {
+            return this.addAcceptanceCriterium(token, secret, checklist.id, acceptanceCriterium, card)
+          })
         })
-      })
+    }
+    return Promise.resolve({})
   }
 
   exportLabels(token, secret, backlog, boardId) {
