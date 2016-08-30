@@ -94,7 +94,7 @@ app.post('/webhooks/:type', (req, res) => {
     const mappedField = fieldsMapping[changedField]
     const estimates = newValue.match(/^\((1|2|3|5|8|13|\?)\)/)
 
-    if (mappedField === 'title' && estimates.length > 1) {
+    if (mappedField === 'title' && estimates && estimates.length > 1) {
       let estimate = estimates[1]
       if (estimate === '?') {
         estimate = null
