@@ -1,4 +1,4 @@
-import mongoose, { Backlog, Sprint } from './models'
+import mongoose, { Backlog, Sprint, Card } from './models'
 import Promise from 'bluebird'
 import {
   getBoardIdForList,
@@ -158,5 +158,12 @@ export default class Syncer {
     }).catch(e => {
       console.log(e.stack)
     })
+  }
+
+  updateBacklogCard(id, field, newValue) {
+    const modifier = { $set: { } }
+    modifier['$set'][field] = newValue
+
+    return Card.update({ _id: id }, modifier).exec()
   }
 }
