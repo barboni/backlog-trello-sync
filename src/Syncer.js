@@ -1,4 +1,5 @@
-import mongoose, { Backlog, Sprint, Card } from './models'
+import { mongoose } from 'backlog-models'
+import models from './models'
 import Promise from 'bluebird'
 import {
   getBoardIdForList,
@@ -6,6 +7,8 @@ import {
   clearLabels, clearCards,
   labelColors,
 } from './trello'
+
+const { Backlog, Sprint, Card } = models
 
 export default class Syncer {
   constructor(dbUrl, callbackURL) {
@@ -88,7 +91,11 @@ export default class Syncer {
     const { sync: { trello: { id: listId } } } = sprint
 
     return clearCards(token, secret, { listId })
-      .then(() => sprint.cards)
+      .then(() => {
+        return Card.find({ _id: { $in: sprint.cardIds } }).exec().then(cards => cards.sort((a, b) => {
+          return sprint.cardIds.indexOf(a._id) - sprint.cardIds.indexOf(b._id)
+        }))
+      })
       .then(cards => {
         return Promise.mapSeries(cards, card => {
           return this.addCard(token, secret, listId, card, labelsMapping)
