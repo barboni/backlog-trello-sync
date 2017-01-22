@@ -66,7 +66,6 @@ const cardMethods = {
 }
 
 backlog.methods = Object.assign(backlog.methods, backlogMethods)
-sprint.methods = Object.assign(sprint.methods, sprintMethods)
 card.methods = Object.assign(card.methods, cardMethods)
 
 backlog.add({ trello: { id: String, token: String, secret: String } }, 'sync')
