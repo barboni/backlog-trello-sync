@@ -50,6 +50,12 @@ const conf = convict({
     format: 'url',
     default: 'http://localhost:4001/webhooks/',
     env: 'CALLBACK_URL'
+  },
+  authCallbackUrl: {
+    doc: 'The URI for the OAuth callback URL',
+    format: 'url',
+    default: 'http://localhost:4001/cb/',
+    env: 'AUTH_CALLBACK'
   }
 })
 

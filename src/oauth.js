@@ -2,31 +2,39 @@ import { OAuth } from 'oauth'
 import conf from './config.js'
 import url from 'url'
 
-const appName = 'Backlog sync'
+const appName = 'Backlog'
 
-const requestURL = "https://trello.com/1/OAuthGetRequestToken"
-const accessURL = "https://trello.com/1/OAuthGetAccessToken"
-const authorizeURL = "https://trello.com/1/OAuthAuthorizeToken"
+const requestUrl = 'https://trello.com/1/OAuthGetRequestToken'
+const authorizeUrl = 'https://trello.com/1/OAuthAuthorizeToken'
+const accessUrl = 'https://trello.com/1/OAuthGetAccessToken'
 
-const ip = conf.get('ip')
-const port = conf.get('port')
+const loginCallback = conf.get('authCallbackUrl')
 
-const loginCallback = `http://${ip}:${port}/cb`
+const devKey = conf.get('key')
+const devSecret = conf.get('secret')
 
-const key = conf.get('key')
-const secret = conf.get('secret')
-
-const oauth = new OAuth(requestURL, accessURL, key, secret, '1.0', loginCallback, 'HMAC-SHA1')
+const oauth = new OAuth(requestUrl, accessUrl, devKey, devSecret, '1.0', loginCallback, 'HMAC-SHA1')
 
 const oauthSecrets = {}
 
 export const login = (req, res) => {
-  oauth.getOAuthRequestToken((error, token, tokenSecret) => {
+  const query = url.parse(req.url, true).query
+
+  const returnUrl = query.return_url
+
+  oauth.getOAuthRequestToken((error, requestToken, requestTokenSecret) => {
     const scope = 'read,write'
     const expiration = 'never'
-    const locationUrl = `${authorizeURL}?oauth_token=${token}&name=${appName}&scope=${scope}&expiration=${expiration}`
+    const locationUrl = `${authorizeUrl}?oauth_token=${requestToken}&name=${appName}&scope=${scope}&expiration=${expiration}`
 
-    oauthSecrets[token] = tokenSecret
+    if (error) {
+      return handleError(res, error)
+    }
+
+    oauthSecrets[requestToken] = {
+      requestTokenSecret,
+      returnUrl
+    }
 
     res.writeHead(302, { 'Location': locationUrl })
     res.end()
@@ -36,16 +44,23 @@ export const login = (req, res) => {
 export const cb = (req, res) => {
   const query = url.parse(req.url, true).query
 
-  const token = query.oauth_token
-  const tokenSecret = oauthSecrets[token]
+  const requestToken = query.oauth_token
+  const { requestTokenSecret, returnUrl } = oauthSecrets[requestToken]
   const verifier = query.oauth_verifier
 
-  oauth.getOAuthAccessToken(token, tokenSecret, verifier, (error, accessToken, accessTokenSecret) => {
-    res.json({
-      accessToken,
-      accessTokenSecret
-    })
+  oauth.getOAuthAccessToken(requestToken, requestTokenSecret, verifier, (error, accessToken, accessTokenSecret) => {
+    if (error) {
+      return handleError(res, error)
+    }
+
+    res.writeHead(302, { 'Location': `${returnUrl}?access_token=${accessToken}&access_token_secret=${accessTokenSecret}` })
+    res.end()
   })
+}
+
+function handleError(res, error) {
+  res.status(500)
+  res.render('error', { error })
 }
 
 export default oauth

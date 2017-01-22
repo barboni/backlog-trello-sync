@@ -17,10 +17,8 @@ syncer.start()
 app.use(bodyParser.json()) // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
-if (conf.get('env') === 'development') {
-  app.get('/login', login)
-  app.get('/cb', cb)
-}
+app.get('/login', login)
+app.get('/cb', cb)
 
 app.post('/list-boards', (req, res) => {
   const { body: { token, secret } } = req
