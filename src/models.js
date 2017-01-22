@@ -3,25 +3,6 @@ import models, { schemas } from 'backlog-models'
 const { backlog, sprint, card } = schemas
 
 const backlogMethods = {
-  addTrelloBoard: function(token, secret, boardId) {
-    //TODO check if authorized
-    this.sync = this.sync || {}
-    this.sync.trello = {
-      id: boardId,
-      token, secret
-    }
-    return this.save()
-  },
-
-  removeTrelloBoard: function(token, secret) {
-    //TODO check if authorized
-    if (!this.sync || !this.sync.trello) {
-      throw new Error('No Trello board synchronized')
-    }
-    this.sync.trello = undefined
-    return this.save()
-  },
-
   addTrelloLabel: function(token, secret, labelId, trelloLabelId) {
     //TODO check if authorized
     const label = this.labels.id(labelId)
@@ -39,26 +20,6 @@ const backlogMethods = {
       throw new Error('No Trello list synchronized')
     }
     label.sync.trello = undefined
-    return this.save()
-  }
-}
-
-const sprintMethods = {
-  addTrelloList: function (token, secret, listId) {
-    //TODO check if authorized
-    this.sync = this.sync || {}
-    this.sync.trello = {
-      id: listId
-    }
-    return this.save()
-  },
-
-  removeTrelloList: function (token, secret) {
-    //TODO check if authorized
-    if (!this.sync || !this.sync.trello) {
-      throw new Error('No Trello list synchronized')
-    }
-    this.sync.trello = undefined
     return this.save()
   }
 }

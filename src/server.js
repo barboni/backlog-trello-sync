@@ -51,69 +51,9 @@ app.post('/create-list', (req, res) => {
 })
 
 app.post('/synchronize', (req, res) => {
-  const { body: { token, secret, backlogId, listId } } = req
-  syncer.addBacklog(token, secret, backlogId, listId)
-    .then(backlog => {
-      return syncer.exportBacklog(backlog)
-    })
+  const { body: { token, secret, backlogId } } = req
+  return syncer.exportActiveSprintFromBacklog(token, secret, backlogId)
     .then(result => res.json(result))
-})
-
-app.put('/synchronize', (req, res) => {
-  const { body: { token, secret, backlogId, listId } } = req
-  let promise
-
-  if (!listId) {
-    promise = syncer.removeBacklog(token, secret, backlogId)
-  } else {
-    promise = syncer.addBacklog(token, secret, backlogId, listId)
-  }
-
-  promise.then(result => res.json(result))
-})
-
-app.head('/webhooks/:type', (req, res) => {
-  if (!['backlog', 'sprint', 'card'].includes(req.params.type)) {
-    return res.status(403).send()
-  }
-
-  res.status(200).send()
-})
-
-app.post('/webhooks/:type', (req, res) => {
-  const { body: { action: { type: actionType, data } }, params: { type }, query: { id } } = req
-
-  if (!['board', 'list', 'card'].includes(type)) {
-    return res.status(403).send()
-  }
-
-  if (actionType === 'updateCard') {
-    const changedField = Object.keys(data.old)[0]
-    let newValue = data.card[changedField]
-    const fieldsMapping = {
-      desc: 'description',
-      name: 'title',
-    }
-    const mappedField = fieldsMapping[changedField]
-    const estimates = newValue.match(/^\((1|2|3|5|8|13|\?)\)/)
-
-    if (mappedField === 'title' && estimates && estimates.length > 1) {
-      let estimate = estimates[1]
-      if (estimate === '?') {
-        estimate = null
-      }
-      syncer.updateBacklogCard(id, 'estimate', estimate)
-      newValue = newValue.substring(estimates[0].length + 1)
-    }
-
-    if (mappedField) {
-      return syncer.updateBacklogCard(id, mappedField, newValue).then(
-        res.status(200).send()
-      )
-    }
-  }
-
-  res.status(200).send()
 })
 
 app.listen(port, () => {

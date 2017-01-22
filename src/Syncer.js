@@ -28,38 +28,6 @@ export default class Syncer {
     })
   }
 
-  stop() {
-    mongoose.disconnect().then(() => {
-      this.running = false
-    })
-  }
-
-  addBacklog(token, secret, backlogId, listId) {
-    return getBoardIdForList(token, secret, { listId }).then(boardId => {
-      return Backlog.findOne({ _id: backlogId }).exec().then(backlog => {
-        if (!backlog) {
-          throw new Error('Backlog does not exist')
-        }
-
-        return Sprint.findOne({ backlogId, isActive: true }).then(sprint => {
-          return sprint.addTrelloList(token, secret, listId)
-        }).then(() => {
-          return backlog.addTrelloBoard(token, secret, boardId)
-        })
-      })
-    })
-  }
-
-  removeBacklog(token, secret, backlogId) {
-    return Backlog.findOne({ _id: backlogId }).exec().then(backlog => {
-      if (!backlog) {
-        throw new Error('Backlog does not exist')
-      }
-
-      return backlog.removeTrelloBoard(token, secret)
-    })
-  }
-
   addCard(token, secret, listId, card, labelsMapping) {
     const { _id, title, description, estimate, labelIds } = card
     const trelloLabelIds = labelIds.map(labelId => labelsMapping[labelId])
@@ -87,9 +55,7 @@ export default class Syncer {
       })
   }
 
-  exportSprintToList(token, secret, sprint, labelsMapping) {
-    const { sync: { trello: { id: listId } } } = sprint
-
+  exportSprintToList(token, secret, sprint, listId, labelsMapping) {
     return clearCards(token, secret, { listId })
       .then(() => {
         return Card.find({ _id: { $in: sprint.cardIds } }).exec().then(cards => cards.sort((a, b) => {
@@ -153,24 +119,21 @@ export default class Syncer {
       })
   }
 
-  exportBacklog(backlog) {
-    const { _id: backlogId, sync: { trello: { token, secret, id: boardId } } } = backlog
+  exportActiveSprintFromBacklog(token, secret, backlogId) {
+    return Backlog.findOne({ _id: backlogId }).exec().then(backlog => {
+      const { sync: { trello: { accessToken, accessTokenSecret, listId } } } = backlog
 
-    return this.exportLabels(token, secret, backlog, boardId).then(labelsMapping => {
-      return Sprint.find({ backlogId, 'sync.trello': { $exists: true } }).exec().then(sprints => {
-        return Promise.mapSeries(sprints, sprint => {
-          return this.exportSprintToList(token, secret, sprint, labelsMapping)
+      if (accessToken !== token || accessTokenSecret !== secret) {
+        throw new Error('not authorized')
+      }
+
+      return getBoardIdForList(token, secret, { listId }).then(boardId => {
+        return this.exportLabels(token, secret, backlog, boardId).then(labelsMapping => {
+          return Sprint.findOne({ backlogId, isActive: true }).exec().then(sprint => {
+            return this.exportSprintToList(token, secret, sprint, listId, labelsMapping)
+          })
         })
       })
-    }).catch(e => {
-      console.log(e.stack)
     })
-  }
-
-  updateBacklogCard(id, field, newValue) {
-    const modifier = { $set: { } }
-    modifier['$set'][field] = newValue
-
-    return Card.update({ _id: id }, modifier).exec()
   }
 }
