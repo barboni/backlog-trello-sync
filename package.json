@@ -36,6 +36,7 @@
     "bluebird": "3.4.1",
     "body-parser": "1.15.2",
     "convict": "1.4.0",
+    "cors": "2.8.1",
     "express": "4.14.0",
     "meteor-random": "0.0.3",
     "oauth": "0.9.14"

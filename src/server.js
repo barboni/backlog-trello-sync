@@ -1,6 +1,7 @@
 import express from 'express'
 import conf from './config.js'
 import bodyParser from 'body-parser'
+import cors from 'cors'
 import { login, cb } from './oauth.js'
 import { getUserBoards, createBoard, createList, getLists } from './trello.js'
 import Syncer from './Syncer'
@@ -16,6 +17,10 @@ syncer.start()
 
 app.use(bodyParser.json()) // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
+
+if (process.env.NODE_ENV === 'development') {
+  app.use(cors({ origin: 'http://localhost:8080' }))
+}
 
 app.get('/login', login)
 app.get('/cb', cb)
