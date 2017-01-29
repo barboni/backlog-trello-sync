@@ -53,7 +53,7 @@ export const cb = (req, res) => {
       return handleError(res, error)
     }
 
-    res.writeHead(302, { 'Location': `${returnUrl}?access_token=${accessToken}&access_token_secret=${accessTokenSecret}` })
+    res.writeHead(302, { 'Location': `${returnUrl}?accessToken=${accessToken}&accessTokenSecret=${accessTokenSecret}` })
     res.end()
   })
 }
